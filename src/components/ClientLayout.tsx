@@ -8,6 +8,11 @@ const AIChatbot = dynamic(() => import('@/components/AIChatbot'), {
     loading: () => null
 })
 
+const GuideMascot = dynamic(() => import('@/components/GuideMascot'), {
+    ssr: false,
+    loading: () => null
+})
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
@@ -15,6 +20,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 {children}
             </PageTransition>
             <AIChatbot />
+            <GuideMascot />
         </>
     )
 }
