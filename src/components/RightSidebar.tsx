@@ -21,7 +21,7 @@ export default function RightSidebar() {
                         <Star className="w-5 h-5 text-primary-blue" fill="#1e3a5f" />
                         <span className="text-gray-600 font-semibold">Level {mockUser.level}</span>
                     </div>
-                    <span className="text-primary-blue font-bold">{mockUser.xp} / {mockUser.xpToNextLevel} XP</span>
+                    <span className="text-primary-blue font-bold">{mockUser.xp} / {mockUser.xpToNextLevel} ⭐</span>
                 </div>
                 <div className="h-4 bg-white rounded-full overflow-hidden border border-primary-blue/20">
                     <div
@@ -30,7 +30,7 @@ export default function RightSidebar() {
                     />
                 </div>
                 <div className="mt-2 text-xs text-gray-500 text-center">
-                    Còn <span className="font-bold text-primary-blue">{mockUser.xpToNextLevel - mockUser.xp} XP</span> để lên level
+                    Còn <span className="font-bold text-primary-blue">{mockUser.xpToNextLevel - mockUser.xp} ⭐</span> để lên level
                 </div>
             </div>
 
@@ -100,7 +100,7 @@ export default function RightSidebar() {
                                         <div className="mt-2">
                                             <div className="flex items-center justify-between text-xs mb-1">
                                                 <span className="text-gray-400">{quest.progress}/{quest.maxProgress}</span>
-                                                <span className="text-duo-yellow font-bold">+{quest.xpReward} XP</span>
+                                                <span className="text-duo-yellow font-bold flex items-center gap-1">+{quest.xpReward} ⭐</span>
                                             </div>
                                             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                                 <div
@@ -147,7 +147,7 @@ export default function RightSidebar() {
                             <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-gray-700 text-sm truncate">{user.name}</div>
                             </div>
-                            <div className="text-xs font-bold text-duo-yellow">{user.xp.toLocaleString()} XP</div>
+                            <div className="text-xs font-bold text-duo-yellow flex items-center gap-1">{user.xp.toLocaleString()} ⭐</div>
                         </div>
                     ))}
                 </div>

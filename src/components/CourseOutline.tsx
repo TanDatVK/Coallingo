@@ -7,9 +7,10 @@ import { AIGeneratedCourse, AIModule, AISection } from '@/data/mockData'
 interface CourseOutlineProps {
     course: AIGeneratedCourse
     onSectionClick?: (section: AISection, module: AIModule) => void
+    onModuleClick?: (module: AIModule) => void
 }
 
-export default function CourseOutline({ course, onSectionClick }: CourseOutlineProps) {
+export default function CourseOutline({ course, onSectionClick, onModuleClick }: CourseOutlineProps) {
     const [expandedModules, setExpandedModules] = useState<string[]>(
         course.modules.filter(m => !m.completed).slice(0, 1).map(m => m.id)
     )
@@ -104,12 +105,14 @@ export default function CourseOutline({ course, onSectionClick }: CourseOutlineP
                             {/* Module Header */}
                             <button
                                 onClick={() => toggleModule(module.id)}
+                                onDoubleClick={() => onModuleClick?.(module)}
                                 className="w-full flex items-center justify-between p-4 hover:bg-slate-800/80 transition-colors"
+                                title="Double-click to view details"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${module.completed
-                                            ? 'bg-emerald-500 text-white'
-                                            : 'bg-slate-700 text-slate-300'
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'bg-slate-700 text-slate-300'
                                         }`}>
                                         {moduleIndex + 1}
                                     </div>
@@ -126,8 +129,8 @@ export default function CourseOutline({ course, onSectionClick }: CourseOutlineP
                                         <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden mt-1">
                                             <div
                                                 className={`h-full rounded-full transition-all ${progress.percentage === 100
-                                                        ? 'bg-emerald-500'
-                                                        : 'bg-cyan-500'
+                                                    ? 'bg-emerald-500'
+                                                    : 'bg-cyan-500'
                                                     }`}
                                                 style={{ width: `${progress.percentage}%` }}
                                             />

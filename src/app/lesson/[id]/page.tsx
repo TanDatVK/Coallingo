@@ -562,6 +562,14 @@ export default function LessonPage() {
     const [hearts, setHearts] = useState(5)
     const [xpEarned, setXpEarned] = useState(0)
 
+    // New features
+    const [streak, setStreak] = useState(0)
+    const [showStreakAnimation, setShowStreakAnimation] = useState(false)
+    const [showOutOfHeartsModal, setShowOutOfHeartsModal] = useState(false)
+    const [correctCount, setCorrectCount] = useState(0)
+    const [hintCount, setHintCount] = useState(5) // Item từ cửa hàng, mua 1 lần = 5 lượt
+    const [revealedAnswer, setRevealedAnswer] = useState<string | number | string[] | null>(null)
+
     const lesson = mockUnits.flatMap(u => u.lessons).find(l => l.id === lessonId)
     const content = mockLessonContents.find(c => c.lessonId === lessonId)
 
@@ -594,6 +602,7 @@ export default function LessonPage() {
         newAnswers[currentQuestion] = answer
         setAnswers(newAnswers)
         setShowResult(true)
+        setRevealedAnswer(null)
 
         let isCorrect = false
         if (currentQ.type === 'multiple_choice') {
@@ -608,8 +617,44 @@ export default function LessonPage() {
 
         if (isCorrect) {
             setXpEarned(prev => prev + Math.floor(lesson.xpReward / questions.length))
+            setCorrectCount(prev => prev + 1)
+            const newStreak = streak + 1
+            setStreak(newStreak)
+
+            // Show streak animation at 2 or 4 consecutive correct
+            if (newStreak === 2 || newStreak === 4) {
+                setShowStreakAnimation(true)
+                setTimeout(() => setShowStreakAnimation(false), 2000)
+            }
         } else {
-            setHearts(prev => Math.max(0, prev - 1))
+            setStreak(0) // Reset streak on wrong answer
+            const newHearts = hearts - 1
+            setHearts(Math.max(0, newHearts))
+
+            // Show out of hearts modal
+            if (newHearts <= 0) {
+                setTimeout(() => setShowOutOfHeartsModal(true), 500)
+            }
+        }
+    }
+
+    const handleSkip = () => {
+        // Skip counts as wrong (lose a heart)
+        const newHearts = hearts - 1
+        setHearts(Math.max(0, newHearts))
+        setStreak(0)
+
+        if (newHearts <= 0) {
+            setShowOutOfHeartsModal(true)
+            return
+        }
+
+        if (currentQuestion < questions.length - 1) {
+            setCurrentQuestion(prev => prev + 1)
+            setShowResult(false)
+            setRevealedAnswer(null)
+        } else {
+            setIsCompleted(true)
         }
     }
 
@@ -617,53 +662,145 @@ export default function LessonPage() {
         if (currentQuestion < questions.length - 1) {
             setCurrentQuestion(prev => prev + 1)
             setShowResult(false)
+            setRevealedAnswer(null)
         } else {
             setIsCompleted(true)
         }
     }
 
+    const handleUseHint = () => {
+        if (hintCount > 0 && !showResult) {
+            setHintCount(prev => prev - 1)
+            setRevealedAnswer(currentQ.correctAnswer)
+        }
+    }
+
+    const handleBuyHearts = (method: 'gems' | 'ad') => {
+        // Mock: restore hearts
+        setHearts(5)
+        setShowOutOfHeartsModal(false)
+    }
+
+    const handleRestartLesson = () => {
+        setCurrentQuestion(0)
+        setAnswers([])
+        setShowResult(false)
+        setIsCompleted(false)
+        setHearts(5)
+        setXpEarned(0)
+        setStreak(0)
+        setCorrectCount(0)
+        setActiveTab('test')
+    }
+
     // Completion Screen
     if (isCompleted) {
-        const correctCount = answers.filter((a, i) => {
+        const finalCorrectCount = answers.filter((a, i) => {
             const q = questions[i]
             if (q.type === 'drag_drop') return JSON.stringify(a) === JSON.stringify(q.correctAnswer)
             if (q.type === 'type_answer') return (a as string)?.toLowerCase().trim() === (q.correctAnswer as string).toLowerCase().trim()
             return a === q.correctAnswer
         }).length
 
-        const percentage = Math.round((correctCount / questions.length) * 100)
+        const percentage = Math.round((finalCorrectCount / questions.length) * 100)
+        const isPassed = percentage >= 50
 
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-                <div className="max-w-md w-full bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-700 p-8 text-center">
-                    <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                        <Cpu size={48} className="text-white" />
+            <div className={`min-h-screen flex flex-col items-center justify-center p-4 ${isPassed
+                ? 'bg-gradient-to-br from-slate-900 via-emerald-900/20 to-slate-900'
+                : 'bg-gradient-to-br from-slate-900 via-red-900/20 to-slate-900'
+                }`}>
+
+                <div className={`relative max-w-md w-full rounded-3xl border p-8 text-center animate-fade-in ${isPassed
+                    ? 'bg-slate-800/80 border-emerald-500/30'
+                    : 'bg-slate-800/80 border-red-500/30'
+                    }`}>
+                    {/* Icon */}
+                    <div className="mb-6 relative">
+                        {isPassed ? (
+                            <div className="mx-auto w-28 h-28">
+                                <LottieMascot size={112} animationFile="Trophy.json" />
+                            </div>
+                        ) : (
+                            <div className="relative mx-auto w-32 h-32">
+                                {/* Sad emotion at bottom */}
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+                                    <LottieMascot size={96} animationFile="sad emotion.json" />
+                                </div>
+                                {/* Lose animation on top */}
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+                                    <LottieMascot size={80} animationFile="lose animation.json" />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <h1 className="text-3xl font-black text-white mb-2">🎉 Hoàn thành!</h1>
-                    <p className="text-slate-400 mb-8">{lesson.titleVi}</p>
+                    {/* Title */}
+                    <h1 className={`text-3xl font-black mb-2 ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {isPassed ? 'Chiến thắng!' : 'Chưa đạt'}
+                    </h1>
 
-                    <div className="grid grid-cols-3 gap-4 mb-8">
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
-                            <div className="text-3xl font-black text-emerald-400">{percentage}%</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wide">Chính xác</div>
+                    <p className="text-slate-400 mb-2">{lesson.titleVi}</p>
+
+                    <p className={`text-sm mb-6 ${isPassed ? 'text-emerald-400/80' : 'text-red-400/80'}`}>
+                        {isPassed
+                            ? 'Xuất sắc! Bạn đã hoàn thành bài học!'
+                            : 'Cần đạt trên 50% để qua bài'}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                        <div className={`p-3 rounded-xl border ${isPassed ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'
+                            }`}>
+                            <div className={`text-2xl font-black ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {percentage}%
+                            </div>
+                            <div className="text-xs text-slate-500">Chính xác</div>
                         </div>
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
-                            <div className="text-3xl font-black text-yellow-400">+{xpEarned}</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wide">XP</div>
+                        <div className="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
+                            <div className="text-2xl font-black text-yellow-400">+{xpEarned}</div>
+                            <div className="text-xs text-slate-500">XP</div>
                         </div>
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
-                            <div className="text-3xl font-black text-red-400">{hearts}</div>
-                            <div className="text-xs text-slate-500 uppercase tracking-wide">❤️ Còn</div>
+                        <div className="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
+                            <div className="text-2xl font-black text-red-400">{hearts}</div>
+                            <div className="text-xs text-slate-500">❤️ Tim</div>
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => router.push('/learn')}
-                        className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-lg rounded-2xl hover:opacity-90 transition-all"
-                    >
-                        Tiếp tục học →
-                    </button>
+                    {/* Actions */}
+                    <div className="space-y-3">
+                        {isPassed ? (
+                            <>
+                                <button
+                                    onClick={() => router.push('/learn')}
+                                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-lg rounded-2xl hover:brightness-110 transition-all"
+                                >
+                                    Tiếp tục học →
+                                </button>
+                                <button
+                                    onClick={handleRestartLesson}
+                                    className="w-full py-3 bg-slate-700 text-slate-300 font-semibold rounded-xl hover:bg-slate-600 transition-all"
+                                >
+                                    Làm lại
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={handleRestartLesson}
+                                    className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-lg rounded-2xl hover:brightness-110 transition-all"
+                                >
+                                    Học lại
+                                </button>
+                                <button
+                                    onClick={() => router.push('/learn')}
+                                    className="w-full py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl hover:bg-slate-600 transition-all"
+                                >
+                                    Quay lại sau
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         )
@@ -671,6 +808,49 @@ export default function LessonPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            {/* Streak Animation Overlay */}
+            {showStreakAnimation && (
+                <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+                    <div className="animate-fade-in">
+                        <LottieMascot size={200} animationFile="clap.json" />
+                    </div>
+                </div>
+            )}
+
+            {/* Out of Hearts Modal */}
+            {showOutOfHeartsModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="max-w-sm w-full bg-slate-800 rounded-3xl border border-slate-700 p-6 text-center animate-fade-in">
+                        <div className="w-20 h-20 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+                            <Heart size={40} className="text-red-500" />
+                        </div>
+                        <h2 className="text-2xl font-black text-white mb-2">Hết tim rồi! 💔</h2>
+                        <p className="text-slate-400 text-sm mb-6">Bạn cần tim để tiếp tục học. Chọn cách để lấy thêm tim:</p>
+
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => handleBuyHearts('gems')}
+                                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl flex items-center justify-center gap-2"
+                            >
+                                <LottieMascot size={24} animationFile="Stone.json" />
+                                Mua 5 tim (50 gems)
+                            </button>
+                            <button
+                                onClick={() => handleBuyHearts('ad')}
+                                className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl flex items-center justify-center gap-2"
+                            >
+                                🎬 Xem quảng cáo (+1 tim)
+                            </button>
+                            <button
+                                onClick={() => router.push('/learn')}
+                                className="w-full py-2 text-slate-400 hover:text-white font-semibold transition-colors"
+                            >
+                                Quay lại sau
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700">
                 <div className="max-w-3xl mx-auto px-4 py-3">
@@ -695,6 +875,21 @@ export default function LessonPage() {
                             <Heart size={18} className="text-red-500" fill="currentColor" />
                             <span className="font-bold text-slate-300">{hearts}</span>
                         </div>
+
+                        {/* Hint Button */}
+                        <button
+                            onClick={handleUseHint}
+                            disabled={hintCount <= 0 || showResult || revealedAnswer !== null}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${hintCount > 0 && !showResult && revealedAnswer === null
+                                ? 'bg-amber-500/20 hover:bg-amber-500/30 cursor-pointer'
+                                : 'bg-slate-800 opacity-50 cursor-not-allowed'
+                                }`}
+                        >
+                            <div className="w-5 h-5">
+                                <LottieMascot size={20} animationFile="Creative Idea.json" />
+                            </div>
+                            <span className="font-bold text-amber-400">{hintCount}</span>
+                        </button>
 
                         {/* XP */}
                         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 rounded-lg">
@@ -782,7 +977,7 @@ export default function LessonPage() {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {/* Question Counter */}
+                        {/* Question Counter with Skip and Hint */}
                         <div className="flex items-center justify-between py-2">
                             <div className="flex items-center gap-2">
                                 <span className="px-3 py-1 bg-slate-800 rounded-lg text-sm font-mono text-cyan-400">
@@ -795,8 +990,37 @@ export default function LessonPage() {
                                     {currentQ.type === 'drag_drop' && 'Hoàn thành code'}
                                     {currentQ.type === 'code_writing' && 'Viết code'}
                                 </span>
+                                {/* Streak indicator */}
+                                {streak > 0 && (
+                                    <span className="px-2 py-1 bg-yellow-500/20 rounded-lg text-xs font-bold text-yellow-400 flex items-center gap-1">
+                                        🔥 {streak}
+                                    </span>
+                                )}
                             </div>
+                            {/* Skip Button only - Hint moved to bottom */}
+                            {!showResult && (
+                                <button
+                                    onClick={handleSkip}
+                                    className="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-red-400 rounded-lg text-sm font-semibold flex items-center gap-1 transition-all"
+                                >
+                                    <ChevronRight size={14} />
+                                    Bỏ qua
+                                </button>
+                            )}
                         </div>
+
+                        {/* Revealed Answer Panel */}
+                        {revealedAnswer !== null && (
+                            <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl animate-fade-in">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Lightbulb size={16} className="text-emerald-400" />
+                                    <span className="font-bold text-emerald-400">Đáp án đúng</span>
+                                </div>
+                                <p className="text-white font-mono text-lg">
+                                    {Array.isArray(revealedAnswer) ? revealedAnswer.join(' ') : String(revealedAnswer)}
+                                </p>
+                            </div>
+                        )}
 
                         {/* Question Card */}
                         <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700 p-6">

@@ -8,6 +8,8 @@ import dynamic from 'next/dynamic'
 import { mockAICourses, AIGeneratedCourse, AISection, AIModule } from '@/data/mockData'
 import CourseOutline from '@/components/CourseOutline'
 import CourseMindMap from '@/components/CourseMindMap'
+import SectionDetailModal from '@/components/SectionDetailModal'
+import ModuleDetailModal from '@/components/ModuleDetailModal'
 
 const LottieMascot = dynamic(() => import('@/components/LottieMascot'), {
     ssr: false,
@@ -41,6 +43,7 @@ export default function ReadingPage() {
     const [viewMode, setViewMode] = useState<'mindmap' | 'outline'>('outline')
     const [selectedCourse, setSelectedCourse] = useState<AIGeneratedCourse | null>(null)
     const [selectedSection, setSelectedSection] = useState<{ section: AISection, module: AIModule } | null>(null)
+    const [selectedModule, setSelectedModule] = useState<AIModule | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
 
     // Course creation states
@@ -64,8 +67,23 @@ export default function ReadingPage() {
         setSelectedSection({ section, module })
     }
 
+    const handleModuleClick = (module: AIModule) => {
+        setSelectedModule(module)
+    }
+
     const closeSectionModal = () => {
         setSelectedSection(null)
+    }
+
+    const closeModuleModal = () => {
+        setSelectedModule(null)
+    }
+
+    const handleSectionFromModule = (section: AISection) => {
+        if (selectedModule) {
+            setSelectedSection({ section, module: selectedModule })
+            setSelectedModule(null)
+        }
     }
 
     const getTotalProgress = (course: AIGeneratedCourse) => {
@@ -193,6 +211,7 @@ export default function ReadingPage() {
                                     <CourseMindMap
                                         course={selectedCourse}
                                         onSectionClick={handleSectionClick}
+                                        onModuleClick={handleModuleClick}
                                     />
                                 </div>
                             ) : (
@@ -200,6 +219,7 @@ export default function ReadingPage() {
                                     <CourseOutline
                                         course={selectedCourse}
                                         onSectionClick={handleSectionClick}
+                                        onModuleClick={handleModuleClick}
                                     />
                                 </div>
                             )}
@@ -538,49 +558,26 @@ export default function ReadingPage() {
                 </div>
             )}
 
-            {/* Section Modal */}
-            {selectedSection && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-slate-800 rounded-2xl border border-slate-700 max-w-2xl w-full max-h-[80vh] overflow-auto">
-                        <div className="p-6 border-b border-slate-700">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <p className="text-sm text-cyan-400 mb-1">{selectedSection.module.titleVi}</p>
-                                    <h2 className="text-xl font-bold text-white">{selectedSection.section.titleVi}</h2>
-                                </div>
-                                <button
-                                    onClick={closeSectionModal}
-                                    className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-                                >
-                                    <span className="text-slate-400 text-xl">&times;</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="p-6">
-                            <div className="prose prose-invert max-w-none">
-                                <p className="text-slate-300 leading-relaxed">
-                                    {selectedSection.section.content}
-                                </p>
-                                <div className="mt-6 p-4 bg-slate-900 rounded-xl border border-slate-700">
-                                    <p className="text-sm text-slate-400">
-                                        💡 Đây là nội dung được AI tạo ra. Bạn có thể bắt đầu luyện tập với các câu hỏi liên quan.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="mt-6 flex gap-3">
-                                <button
-                                    onClick={closeSectionModal}
-                                    className="flex-1 py-3 border border-slate-600 text-slate-300 font-semibold rounded-xl hover:bg-slate-700 transition-colors"
-                                >
-                                    Đóng
-                                </button>
-                                <button className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:opacity-90 transition-all">
-                                    Bắt đầu luyện tập
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {/* Section Detail Modal */}
+            {selectedSection && selectedCourse && (
+                <SectionDetailModal
+                    section={selectedSection.section}
+                    module={selectedSection.module}
+                    courseId={selectedCourse.id}
+                    isOpen={true}
+                    onClose={closeSectionModal}
+                />
+            )}
+
+            {/* Module Detail Modal */}
+            {selectedModule && selectedCourse && (
+                <ModuleDetailModal
+                    module={selectedModule}
+                    course={selectedCourse}
+                    isOpen={true}
+                    onClose={closeModuleModal}
+                    onSectionClick={handleSectionFromModule}
+                />
             )}
         </div>
     )

@@ -245,7 +245,7 @@ function PaymentContent() {
                                     return (
                                         <div key={label} className="flex items-center gap-2">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all ${isCurrent ? 'bg-duo-green text-white scale-110 ring-4 ring-duo-green/30' :
-                                                    isActive ? 'bg-duo-green/80 text-white' : 'bg-white/10 text-gray-500'
+                                                isActive ? 'bg-duo-green/80 text-white' : 'bg-white/10 text-gray-500'
                                                 }`}>
                                                 {isActive && i < stepIndex ? <Check size={16} /> : i + 1}
                                             </div>
@@ -268,8 +268,8 @@ function PaymentContent() {
                                                 key={method.id}
                                                 onClick={() => setPaymentMethod(method.id)}
                                                 className={`p-4 rounded-xl border-2 text-left transition-all ${paymentMethod === method.id
-                                                        ? 'border-duo-green bg-duo-green/10'
-                                                        : 'border-white/10 hover:border-white/30 bg-white/5'
+                                                    ? 'border-duo-green bg-duo-green/10'
+                                                    : 'border-white/10 hover:border-white/30 bg-white/5'
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-3 mb-2">
@@ -510,8 +510,12 @@ function PaymentContent() {
 
                                 {/* Package Info */}
                                 <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-duo-green/20 to-accent-blue/20 rounded-xl mb-4 border border-white/10">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-duo-green to-accent-cyan rounded-xl flex items-center justify-center text-2xl">
-                                        {selectedPackage.icon}
+                                    <div className="w-14 h-14 bg-gradient-to-br from-duo-green to-accent-cyan rounded-xl flex items-center justify-center">
+                                        {selectedPackage.gems ? (
+                                            <LottieMascot size={48} animationFile="Stone.json" />
+                                        ) : (
+                                            <span className="text-2xl">{selectedPackage.icon}</span>
+                                        )}
                                     </div>
                                     <div>
                                         <div className="font-bold text-white">{selectedPackage.name}</div>

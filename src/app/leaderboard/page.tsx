@@ -77,7 +77,7 @@ export default function LeaderboardPage() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-bold text-primary-blue text-lg">{mockUser.totalXp.toLocaleString()} XP</div>
+                                    <div className="font-bold text-primary-blue text-lg">{mockUser.totalXp.toLocaleString()} ⭐</div>
                                     {userInTop10 && (
                                         <div className="flex items-center gap-1 text-xs text-duo-green font-semibold">
                                             <TrendingUp className="w-3 h-3" />
@@ -174,7 +174,7 @@ export default function LeaderboardPage() {
                                 <div className="font-bold text-gray-800 text-base">{mockLeaderboard[0]?.name}</div>
                                 <div className="text-sm text-duo-yellow font-bold flex items-center justify-center gap-1">
                                     <Flame className="w-4 h-4" />
-                                    {mockLeaderboard[0]?.xp.toLocaleString()} XP
+                                    {mockLeaderboard[0]?.xp.toLocaleString()} ⭐
                                 </div>
                                 <div className="mt-2 w-24 sm:w-32 h-28 bg-gradient-to-t from-duo-yellow to-amber-400 rounded-t-2xl flex items-center justify-center shadow-lg mx-auto">
                                     <div className="text-center">
@@ -217,7 +217,7 @@ export default function LeaderboardPage() {
                         </div>
                         <div className="bg-white p-4 rounded-2xl border border-gray-200 text-center shadow-sm">
                             <div className="text-2xl font-black text-duo-yellow">{mockLeaderboard[0]?.xp.toLocaleString()}</div>
-                            <div className="text-xs text-gray-500 font-semibold">XP cao nhất</div>
+                            <div className="text-xs text-gray-500 font-semibold">⭐ cao nhất</div>
                         </div>
                         <div className="bg-white p-4 rounded-2xl border border-gray-200 text-center shadow-sm">
                             <div className="text-2xl font-black text-duo-green">72h</div>
@@ -290,7 +290,7 @@ export default function LeaderboardPage() {
                                             <Zap className="w-4 h-4" />
                                             {user.xp.toLocaleString()}
                                         </div>
-                                        <div className="text-xs text-gray-400">XP</div>
+                                        <div className="text-xs text-gray-400">⭐</div>
                                     </div>
 
                                     {/* Movement indicator */}

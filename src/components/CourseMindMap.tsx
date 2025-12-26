@@ -28,9 +28,10 @@ const nodeTypes = {
 interface CourseMindMapProps {
     course: AIGeneratedCourse
     onSectionClick?: (section: AISection, module: AIModule) => void
+    onModuleClick?: (module: AIModule) => void
 }
 
-export default function CourseMindMap({ course, onSectionClick }: CourseMindMapProps) {
+export default function CourseMindMap({ course, onSectionClick, onModuleClick }: CourseMindMapProps) {
     const initialNodes: Node[] = useMemo(() => {
         const nodes: Node[] = []
 
@@ -84,6 +85,7 @@ export default function CourseMindMap({ course, onSectionClick }: CourseMindMapP
                     completedCount: completedCount,
                     completionPercentage: completionPercentage,
                     moduleNumber: moduleNumber,
+                    onClick: () => onModuleClick?.(module),
                 },
             })
 

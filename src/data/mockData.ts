@@ -821,7 +821,13 @@ export const mockLessonContents: LessonContent[] = [
     }
 ];
 
-// AI-Generated Course Types
+// Detailed content for AI Section
+export interface AISectionDetail {
+    theory: string;
+    codeExamples: { title: string; code: string; explanation: string }[];
+    keyPoints: string[];
+}
+
 export interface AISection {
     id: string;
     title: string;
@@ -830,6 +836,7 @@ export interface AISection {
     duration: number;
     completed: boolean;
     order: number;
+    detail?: AISectionDetail;
 }
 
 export interface AIModule {

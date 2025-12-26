@@ -16,7 +16,7 @@ import {
     Camera, ChevronRight, Clock, Target, TrendingUp,
     Award, Users, ChevronLeft, Settings, Edit3, Save,
     X, Bell, Moon, Globe, Shield, LogOut, Volume2,
-    Eye, EyeOff, Mail, User, Phone
+    Eye, EyeOff, Mail, User, Phone, Check
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
@@ -55,6 +55,7 @@ export default function ProfilePage() {
         soundEffects: true,
         darkMode: false,
         language: 'vi',
+        backgroundTheme: 'default',
         showProfile: true,
         showProgress: true
     })
@@ -238,10 +239,7 @@ export default function ProfilePage() {
                             {/* Weekly Progress Chart with Calendar Slider */}
                             <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-lg mb-6">
                                 <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-6 h-6 text-primary-blue" />
-                                        <h2 className="text-xl font-black text-gray-800">Hoạt động 7 ngày qua</h2>
-                                    </div>
+                                    <h2 className="text-xl font-black text-gray-800">Hoạt động 7 ngày qua</h2>
                                     <div className="flex items-center gap-4 text-sm">
                                         <div className="flex items-center gap-2">
                                             <LottieMascot size={16} animationFile="Star.json" />
@@ -284,33 +282,36 @@ export default function ProfilePage() {
                                                     className="flex-1 flex flex-col items-center gap-1 cursor-pointer group"
                                                 >
                                                     {/* XP Value */}
-                                                    <div className={`text-xs font-bold flex items-center gap-0.5 ${isSelected ? 'text-duo-orange' : 'text-gray-600'}`}>
+                                                    <div className={`text-xs font-bold flex items-center gap-0.5 ${isSelected ? 'hidden' : 'text-gray-600'}`}>
                                                         <span className="text-duo-yellow">★</span>
                                                         {stat.xp}
                                                     </div>
 
-                                                    {/* Bar Container */}
-                                                    <div className="flex-1 w-full flex items-end justify-center">
-                                                        <div
-                                                            className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${isSelected
-                                                                    ? 'bg-gradient-to-t from-duo-orange to-duo-yellow shadow-lg shadow-duo-orange/30 scale-105'
-                                                                    : isToday
-                                                                        ? 'bg-gradient-to-t from-duo-green to-duo-green/60 group-hover:scale-105'
-                                                                        : 'bg-gradient-to-t from-primary-blue to-accent-blue group-hover:scale-105 group-hover:shadow-md'
-                                                                }`}
-                                                            style={{
-                                                                height: `${Math.max(heightPercent, 15)}%`,
-                                                                minHeight: `${minHeight}px`
-                                                            }}
-                                                        />
+                                                    <div className="flex-1 w-full flex items-end justify-center relative">
+                                                        {isSelected ? (
+                                                            <div className="w-20 h-20 -mb-2 z-10">
+                                                                <LottieMascot size={80} animationFile="Calendar Animation.json" />
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${isToday
+                                                                    ? 'bg-gradient-to-t from-duo-green to-duo-green/60 group-hover:scale-105'
+                                                                    : 'bg-gradient-to-t from-primary-blue to-accent-blue group-hover:scale-105 group-hover:shadow-md'
+                                                                    }`}
+                                                                style={{
+                                                                    height: `${Math.max(heightPercent, 15)}%`,
+                                                                    minHeight: `${minHeight}px`
+                                                                }}
+                                                            />
+                                                        )}
                                                     </div>
 
                                                     {/* Day Label */}
-                                                    <div className={`text-xs font-bold mt-1 px-2 py-1 rounded-lg transition-all ${isSelected
-                                                            ? 'bg-duo-orange text-white'
-                                                            : isToday
-                                                                ? 'bg-duo-green/20 text-duo-green'
-                                                                : 'text-gray-500 group-hover:bg-gray-100'
+                                                    <div className={`mt-1 text-xs font-bold px-2 py-1 rounded-lg transition-all ${isSelected
+                                                        ? 'bg-duo-orange text-white'
+                                                        : isToday
+                                                            ? 'bg-duo-green/20 text-duo-green'
+                                                            : 'text-gray-500 group-hover:bg-gray-100'
                                                         }`}>
                                                         {stat.dayShort}
                                                     </div>
@@ -629,6 +630,45 @@ export default function ProfilePage() {
                                             <option value="vi">Tiếng Việt</option>
                                             <option value="en">English</option>
                                         </select>
+                                    </div>
+
+                                    {/* Background Theme Selector */}
+                                    <div className="p-4 bg-gray-50 rounded-xl">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-accent-blue rounded-xl flex items-center justify-center">
+                                                <LottieMascot size={24} animationFile="Star.json" />
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-gray-800">Chọn nền</div>
+                                                <div className="text-sm text-gray-500">Tùy chỉnh hình nền ứng dụng</div>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-5 gap-3">
+                                            {[
+                                                { id: 'default', name: 'Mặc định', gradient: 'from-gray-100 to-gray-200' },
+                                                { id: 'galaxy', name: 'Galaxy', gradient: 'from-purple-900 via-blue-900 to-black' },
+                                                { id: 'forest', name: 'Forest', gradient: 'from-green-800 via-green-600 to-emerald-500' },
+                                                { id: 'ocean', name: 'Ocean', gradient: 'from-blue-900 via-cyan-700 to-teal-500' },
+                                                { id: 'sunset', name: 'Sunset', gradient: 'from-orange-500 via-pink-500 to-purple-600' },
+                                            ].map((theme) => (
+                                                <button
+                                                    key={theme.id}
+                                                    onClick={() => setSettings({ ...settings, backgroundTheme: theme.id })}
+                                                    className={`relative p-1 rounded-xl transition-all ${settings.backgroundTheme === theme.id
+                                                        ? 'ring-4 ring-duo-green ring-offset-2 scale-105'
+                                                        : 'hover:scale-105'
+                                                        }`}
+                                                >
+                                                    <div className={`w-full aspect-square rounded-lg bg-gradient-to-br ${theme.gradient}`} />
+                                                    <div className="text-xs font-semibold text-gray-700 mt-1 text-center">{theme.name}</div>
+                                                    {settings.backgroundTheme === theme.id && (
+                                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-duo-green rounded-full flex items-center justify-center">
+                                                            <Check size={12} className="text-white" />
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

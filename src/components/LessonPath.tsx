@@ -178,14 +178,24 @@ function LessonNode({ lesson, unitColor, index, totalLessons, unitIndex, onClick
 
     return (
         <div
-            className="relative flex flex-col items-center"
+            className="relative flex flex-col items-center group"
             style={{ transform: `translateX(${xOffset}px)` }}
         >
             {/* Speech bubble for current lesson (not for chests) */}
             {lesson.status === 'current' && !isChest && (
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10">
                     <div className="bg-white px-4 py-2 rounded-xl shadow-lg font-bold text-[#58cc02] uppercase tracking-wide text-sm whitespace-nowrap border-2 border-gray-100">
-                        Bắt đầu
+                        {lesson.progress > 0 ? 'Tiếp tục' : 'Bắt đầu'}
+                    </div>
+                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-white border-r-2 border-b-2 border-gray-100 transform rotate-45" />
+                </div>
+            )}
+
+            {/* Speech bubble for completed lesson */}
+            {lesson.status === 'completed' && !isChest && (
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-white px-4 py-2 rounded-xl shadow-lg font-bold text-primary-blue uppercase tracking-wide text-sm whitespace-nowrap border-2 border-gray-100">
+                        Học lại
                     </div>
                     <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-white border-r-2 border-b-2 border-gray-100 transform rotate-45" />
                 </div>
@@ -264,7 +274,7 @@ function UnitGuideModal({ unit, isOpen, onClose }: UnitGuideModalProps) {
                         </div>
                         <div className="bg-white rounded-xl p-3">
                             <div className="text-2xl font-black text-[#ffc800]">{totalXp}</div>
-                            <div className="text-xs text-gray-500">Tổng XP</div>
+                            <div className="text-xs text-gray-500">Tổng ⭐</div>
                         </div>
                         <div className="bg-white rounded-xl p-3">
                             <div className="text-2xl font-black text-gray-700">{unit.lessons.length}</div>
@@ -300,7 +310,7 @@ function UnitGuideModal({ unit, isOpen, onClose }: UnitGuideModalProps) {
                                     <div className="text-xs text-gray-500">{lesson.titleVi}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-bold text-[#ffc800]">+{lesson.xpReward} XP</div>
+                                    <div className="text-sm font-bold text-[#ffc800]">+{lesson.xpReward} ⭐</div>
                                     <div className="text-xs text-gray-400">{lesson.exercises} bài tập</div>
                                 </div>
                             </div>
@@ -442,7 +452,7 @@ function LessonModal({ lesson, onClose }: LessonModalProps) {
                     <div className="flex items-center justify-center gap-6 mb-6">
                         <div className="text-center">
                             <div className="text-2xl font-black text-[#ffc800]">+{lesson.xpReward}</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase">XP</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase">⭐</div>
                         </div>
                         <div className="w-px h-12 bg-gray-200" />
                         <div className="text-center">
@@ -472,7 +482,11 @@ function LessonModal({ lesson, onClose }: LessonModalProps) {
                         onClick={handleStart}
                         className="w-full py-4 bg-[#58cc02] text-white font-bold text-lg rounded-2xl uppercase tracking-wider shadow-[0_4px_0_0_#46a302] hover:brightness-105 active:shadow-none active:translate-y-1 transition-all"
                     >
-                        {lesson.status === 'current' && lesson.progress > 0 ? 'Tiếp tục' : 'Bắt đầu'}
+                        {lesson.status === 'completed'
+                            ? 'Học lại'
+                            : lesson.status === 'current' && lesson.progress > 0
+                                ? 'Tiếp tục'
+                                : 'Bắt đầu'}
                     </button>
                 </div>
             </div>

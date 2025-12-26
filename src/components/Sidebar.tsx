@@ -1,10 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { User, LucideIcon } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { User, LucideIcon, Check, ChevronRight } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
 import { mockLanguages } from '@/data/mockData'
 
 // Dynamic import Lottie
@@ -23,6 +24,11 @@ interface NavItem {
 
 export default function Sidebar() {
     const pathname = usePathname()
+    const router = useRouter()
+    const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(() => {
+        const current = mockLanguages.find(l => l.progress > 0)
+        return current?.id || null
+    })
 
     const navItems: NavItem[] = [
         { href: '/learn', imageSrc: '/images/studying.png', label: 'Học', color: 'text-primary-blue' },
@@ -34,7 +40,15 @@ export default function Sidebar() {
         { href: '/profile', imageSrc: '/images/profile.png', label: 'Hồ sơ', color: 'text-primary-blue' },
     ]
 
-    const currentLanguage = mockLanguages.find(l => l.progress > 0)
+    // Languages with progress (previously learned)
+    const learningLanguages = mockLanguages.filter(l => l.progress > 0)
+    const currentLanguage = mockLanguages.find(l => l.id === selectedLanguageId) || learningLanguages[0]
+    const otherLearningLanguages = learningLanguages.filter(l => l.id !== selectedLanguageId)
+
+    const handleLanguageSwitch = (langId: string) => {
+        setSelectedLanguageId(langId)
+        router.push('/learn')
+    }
 
     return (
         <aside className="fixed left-0 top-16 bottom-0 w-64 bg-white border-r border-gray-100 hidden lg:block overflow-y-auto">
@@ -92,6 +106,7 @@ export default function Sidebar() {
                                 <div className="font-bold text-gray-800">{currentLanguage.name}</div>
                                 <div className="text-xs text-gray-500">{currentLanguage.progress}% hoàn thành</div>
                             </div>
+                            <Check className="w-5 h-5 text-duo-green" />
                         </div>
                         <div className="mt-3 h-2 bg-white rounded-full overflow-hidden">
                             <div
@@ -104,6 +119,40 @@ export default function Sidebar() {
                                 Tiếp tục học
                             </button>
                         </Link>
+                    </div>
+                )}
+
+                {/* Other Learning Languages (can switch) */}
+                {otherLearningLanguages.length > 0 && (
+                    <div className="mt-4">
+                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2 px-2">
+                            Đang học
+                        </div>
+                        <div className="space-y-1">
+                            {otherLearningLanguages.map((lang) => (
+                                <button
+                                    key={lang.id}
+                                    onClick={() => handleLanguageSwitch(lang.id)}
+                                    className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-primary-blue/5 transition-colors cursor-pointer group"
+                                >
+                                    <div
+                                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                        style={{ backgroundColor: lang.bgColor }}
+                                    >
+                                        {lang.iconImage ? (
+                                            <Image src={lang.iconImage} alt={lang.name} width={26} height={26} />
+                                        ) : (
+                                            <span className="text-xl">{lang.icon}</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <div className="font-semibold text-gray-700 text-sm">{lang.name}</div>
+                                        <div className="text-xs text-gray-400">{lang.progress}% hoàn thành</div>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary-blue transition-colors" />
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
 
