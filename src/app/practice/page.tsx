@@ -289,7 +289,7 @@ export default function PracticePage() {
                                     </span>
                                 </h3>
                                 <p className="text-sm text-gray-600 mb-3">
-                                    Dựa trên tiến độ của bạn, AI gợi ý bạn nên ôn tập lại chủ đề <strong>"Vòng lặp"</strong> để củng cố kiến thức.
+                                    Dựa trên tiến độ của bạn, AI gợi ý bạn nên ôn tập lại chủ đề <strong>&quot;Vòng lặp&quot;</strong> để củng cố kiến thức.
                                 </p>
                                 <Link href="/ai-practice?section=sec-3-2&topic=vong-lap">
                                     <button className="px-4 py-2 bg-duo-purple text-white font-bold rounded-xl text-sm hover:brightness-110 shadow-[0_2px_0_0_#9333ea] active:shadow-none active:translate-y-0.5 transition-all flex items-center gap-2">

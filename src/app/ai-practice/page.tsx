@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { ArrowLeft, Lightbulb, MessageCircle, Sparkles, Brain, Target, ChevronRight, CheckCircle, XCircle, RefreshCw, Home, BookOpen } from 'lucide-react'
@@ -105,7 +105,7 @@ const generatePracticeContent = (sectionId: string): PracticeStep[] => {
     ]
 }
 
-export default function AIPracticePage() {
+function AIPracticeContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const sectionId = searchParams.get('section') || 'default'
@@ -398,5 +398,13 @@ export default function AIPracticePage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function AIPracticePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin"/></div>}>
+            <AIPracticeContent />
+        </Suspense>
     )
 }
